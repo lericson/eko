@@ -29,7 +29,10 @@ class ClientInfo(db.Model):
             if val is not None:
                 memcache.delete(key)
                 return val
-            time.sleep(sleep_interval)
+            try:
+                time.sleep(sleep_interval)
+            except KeyboardInterrupt:
+                break
 
     def get_requests_json(self, **kwds):
         if not self.wait_requests(**kwds):
@@ -46,8 +49,8 @@ class ClientInfo(db.Model):
             if memcache.incr(key, 1) is None:
                 raise ValueError("could not increment request semaphore")
 
-    def add_request(self, request):
-        sreq = StoredRequest.from_request(request)
+    def add_request(self, request, data=None):
+        sreq = StoredRequest.from_request(request, data=data)
         sreq.client_info = self
         sreq.put()
         self.notify_request()
@@ -65,9 +68,9 @@ class StoredRequest(db.Model):
     request_properties = ("remote_addr", "path", "query_string")
 
     @classmethod
-    def from_request(cls, request):
+    def from_request(cls, request, data=None):
         hdrs = json.dumps(request.headers.items())
-        data = json.dumps(request.data)
+        data = json.dumps(data)
         kwds = dict((k, getattr(request, k)) for k in cls.request_properties)
         return cls(headers=hdrs, data=data, **kwds)
 

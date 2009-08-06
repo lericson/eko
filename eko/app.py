@@ -5,7 +5,7 @@ from werkzeug import Request, Response
 from werkzeug.exceptions import HTTPException, BadRequest
 
 from eko.db import ClientInfo, StoredRequest
-from eko.utils import JSONResponse
+from eko.utils import JSONResponse, get_entity_body
 
 logger = logging.getLogger("eko.app")
 
@@ -58,9 +58,10 @@ def request_fwd_app(request):
     Also lights a semaphore so that the interaction is snappy.
     """
     now = datetime.datetime.now()
+    data = get_entity_body(request.environ)
     for client_info in ClientInfo.all():
         if request.path.startswith(client_info.base_path):
-            client_info.add_request(request)
+            client_info.add_request(request, data=data)
             client_info.pushed = now
             client_info.put()
     return Response("OK.\n", mimetype="text/plain")
