@@ -13,7 +13,7 @@ logger = logging.getLogger("eko.app")
 def register_client(request):
     """Register client based on *request*, with an empty JSON list as response.
     """
-    base_path = "/"  # TODO
+    base_path = request.path
     client_info = ClientInfo(remote_addr=request.remote_addr,
                              base_path=base_path)
     client_info.put()
