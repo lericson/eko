@@ -1,0 +1,8 @@
+application: eko-eko
+version: 1-brownk
+runtime: python
+api_version: 1
+
+handlers:
+- url: /
+  script: runcgi.py
