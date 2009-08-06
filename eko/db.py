@@ -20,7 +20,7 @@ class ClientInfo(db.Model):
     def mc_sem_key(self):
         return "client_%s_sem" % (self.key(),)
 
-    def wait_requests(self, timeout=10.0, retries=10):
+    def wait_requests(self, timeout=5.0, retries=20):
         # Essentially aquires a semaphore, so could be split out.
         key = self.mc_sem_key
         sleep_interval = timeout / retries
