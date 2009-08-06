@@ -3,7 +3,7 @@ from google.appengine.ext import db
 from google.appengine.api import memcache
 
 import logging
-import simplejson
+import simplejson as json  # TODO
 
 logger = logging.getLogger("eko.db")
 
@@ -35,14 +35,10 @@ class ClientInfo(db.Model):
         if not self.wait_requests(**kwds):
             logger.debug("found no requests for %s" % (self.key(),))
             return "[]"
-        req_parts = []
-        req_part = req_parts.append
         reqs = list(self.requests)
-        for req in reqs:
-            req_part('{"headers": %s, "data": %s}' % (req.headers, req.data))
         db.delete(reqs)
         logger.info("popped %d requests for %s" % (len(reqs), self.key()))
-        return "[%s]" % (", ".join(req_parts))
+        return "[%s]" % (", ".join(map(StoredRequest.as_json, reqs)))
 
     def notify_request(self):
         key = self.mc_sem_key
@@ -51,16 +47,31 @@ class ClientInfo(db.Model):
                 raise ValueError("could not increment request semaphore")
 
     def add_request(self, request):
-        hdrs = simplejson.dumps(request.headers.items())
-        data = simplejson.dumps(request.data)
-        req = StoredRequest(client_info=self, headers=hdrs, data=data)
-        req.put()
+        sreq = StoredRequest.from_request(request)
+        sreq.client_info = self
+        sreq.put()
         self.notify_request()
-        logger.info("added request for %s from %s" %
-                    (self.key(), request.remote_addr))
+        logger.info("request for %s from %s" % (self.key(), sreq.remote_addr))
 
 class StoredRequest(db.Model):
     client_info = db.ReferenceProperty(ClientInfo, collection_name="requests")
     created = db.DateTimeProperty(auto_now_add=True)
+    remote_addr = db.StringProperty()
+    path = db.StringProperty()
+    query_string = db.StringProperty()
     headers = db.BlobProperty()
     data = db.BlobProperty()
+
+    request_properties = ("remote_addr", "path", "query_string")
+
+    @classmethod
+    def from_request(cls, request):
+        hdrs = json.dumps(request.headers.items())
+        data = json.dumps(request.data)
+        kwds = dict((k, getattr(request, k)) for k in cls.request_properties)
+        return cls(headers=hdrs, data=data, **kwds)
+
+    def as_json(self):
+        return ('{"path": %s, "qs": %s, "headers": %s, "data": %s}' %
+                (json.dumps(self.path), json.dumps(self.query_string),
+                 self.headers, self.data))
