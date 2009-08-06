@@ -1,9 +1,8 @@
-import hashlib
 import logging
 import datetime
 
 from werkzeug import Request, Response
-from werkzeug.utils import cached_property
+from werkzeug.exceptions import HTTPException, BadRequest
 
 from eko.db import ClientInfo, StoredRequest
 from eko.utils import JSONResponse
@@ -32,6 +31,10 @@ def client_pull(request):
     Also updates ClientInfo.pulled.
     """
     client_info = ClientInfo.get(request.cookies["cid"])
+    if client_info is None:
+        raise BadRequest("bad cid")
+    elif client_info.base_path != request.path:
+        raise BadRequest("base_path mismatch")
     client_info.pulled = datetime.datetime.now()
     client_info.put()
     return JSONResponse(client_info.get_requests_json())
@@ -73,4 +76,7 @@ def eko_app(environ, start_response):
         app = client_fwd_app
     else:
         app = request_fwd_app
-    return app(environ, start_response)
+    try:
+        return app(environ, start_response)
+    except HTTPException, e:
+        return e(environ, start_response)
