@@ -27,7 +27,7 @@ class Headers(object):
 class EkoClient(object):
     logger = logging.getLogger("eko.client")
     server_url = "http://eko-eko.appspot.com/"
-    min_pass_time = datetime.timedelta(seconds=5)
+    min_pass_time = datetime.timedelta(seconds=6)
     user_agent = "eko/" + __version__
     running = False
 
