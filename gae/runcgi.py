@@ -7,7 +7,7 @@ import werkzeug, jinja2, simplejson
 
 def main():
     from wsgiref.handlers import CGIHandler
-    from eko.app import eko_app
+    from gaeko.app import eko_app
     CGIHandler().run(eko_app)
 
 if __name__ == "__main__":

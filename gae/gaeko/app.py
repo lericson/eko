@@ -4,10 +4,10 @@ import datetime
 from werkzeug import Request, Response
 from werkzeug.exceptions import HTTPException, BadRequest
 
-from eko.db import ClientInfo, StoredRequest
-from eko.utils import JSONResponse, get_entity_body
+from gaeko.db import ClientInfo, StoredRequest
+from gaeko.utils import JSONResponse, get_entity_body
 
-logger = logging.getLogger("eko.app")
+logger = logging.getLogger("gaeko.app")
 
 def register_client(request):
     """Register client based on *request*, with an empty JSON list as response.
