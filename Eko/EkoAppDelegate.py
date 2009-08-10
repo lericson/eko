@@ -45,11 +45,11 @@ class CocoaEkoClient(NSObject, eko.EkoClient):
             raise ValueError("can't change running to %r" % (value,))
 
     def emit_request_forwarded(self, request, response):
+        req_item = RequestItem.from_emission(request, response)
         with object_lock(self.request_items):
-            req_item = RequestItem.from_emission(request, response)
             self.request_items.append(req_item)
         NSApp.delegate().requestView.performSelectorOnMainThread_withObject_waitUntilDone_(
-            "reloadData", None, True)
+            "reloadData", None, False)
 
 class RequestItemDataSource(NSObject):
 #    def outlineView_child_ofItem_(self, view, child_idx, parent_item):
