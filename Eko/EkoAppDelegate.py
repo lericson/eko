@@ -1,5 +1,7 @@
 """THE APP DELEGATE :O"""
 
+from __future__ import with_statement
+
 import os
 import datetime
 import logging
