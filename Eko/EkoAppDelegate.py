@@ -36,14 +36,14 @@ class CocoaEkoClient(NSObject, eko.EkoClient):
         self.initWithServer_AtURL_usingNamespace(server_url, target_url, namespace)
         return self
 
-    @property
-    def running(self):
+    def _get_running(self):
         return not NSThread.currentThread().isCancelled()
 
-    @running.setter
-    def running(self, value):
+    def _set_running(self, value):
         if value != self.running:
             raise ValueError("can't change running to %r" % (value,))
+
+    running = property(_get_running, _set_running)
 
     def emit_request_forwarded(self, request, response):
         req_item = RequestItem.from_emission(request, response)
