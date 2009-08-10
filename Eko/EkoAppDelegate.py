@@ -37,7 +37,7 @@ class CocoaEkoClient(NSObject, eko.EkoClient):
 
     @property
     def running(self):
-        return NSApp.isRunning() and not NSThread.currentThread().isCancelled()
+        return not NSThread.currentThread().isCancelled()
 
     @running.setter
     def running(self, value):
