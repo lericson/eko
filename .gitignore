@@ -2,3 +2,5 @@
 *.pyo
 .DS_Store
 /Eko/build
+/Eko/Eko.xcodeproj/*.mode1v3
+/Eko/Eko.xcodeproj/*.pbxuser
