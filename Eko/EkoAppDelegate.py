@@ -17,7 +17,6 @@ class NSLogHandler(logging.Handler):
         msg = self.format(record)
         if isinstance(msg, str):
             msg = msg.decode("utf-8", "replace")
-        #import pdb ; pdb.set_trace()
         NSLog(msg)
 
 class CocoaEkoClient(NSObject, eko.EkoClient):
