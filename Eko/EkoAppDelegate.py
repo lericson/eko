@@ -50,8 +50,8 @@ class CocoaEkoClient(NSObject, eko.EkoClient):
         req_item = RequestItem.from_emission(request, response)
         with object_lock(self.request_items):
             self.request_items.append(req_item)
-        NSApp.delegate().requestView.performSelectorOnMainThread_withObject_waitUntilDone_(
-            "reloadData", None, False)
+            NSApp.delegate().requestView.performSelectorOnMainThread_withObject_waitUntilDone_(
+                "reloadData", None, False)
 
 class RequestItemDataSource(NSObject):
 #    def outlineView_child_ofItem_(self, view, child_idx, parent_item):
@@ -153,7 +153,7 @@ class EkoAppDelegate(NSObject):
         namespace = self.namespace.stringValue()
         with object_lock(self.request_items):
             self.request_items[:] = []
-        self.requestView.reloadData()
+            self.requestView.reloadData()
         if hasattr(self, "client_thread"):
             self.client_thread.cancel()
         self.client_thread = EkoClientThread.newAtURL_usingNamespace_withItems_(
