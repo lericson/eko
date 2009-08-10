@@ -66,11 +66,7 @@ class EkoClient(object):
             resp = self.target_opener.open(req)
         except urllib2.URLError, e:
             resp = e
-        self.logger.info("forward response:\n"
-            "[%s] \"%s %s HTTP/1.1\" %d %s" %
-            (datetime.datetime.now().strftime("%d/%b/%Y %H:%M:%S"),
-             req.get_method(), req.get_selector(),
-             resp.code, resp.headers.get("Content-Length", "-")))
+        self.emit_request_forwarded(req, resp)
 
     def call_server(self):
         try:
@@ -107,6 +103,14 @@ class EkoClient(object):
                 overdue = elapsed - self.min_pass_time
                 self.logger.info("server overdue: %s" % (overdue,))
 
+    def emit_request_forwarded(self, request, response):
+        ts = datetime.datetime.now().strftime("%d/%b/%Y %H:%M:%S")
+        hdrs = response.headers
+        self.logger.info("forward response:\n"
+            "[%s] \"%s %s HTTP/1.1\" %d %s" %
+            (ts, req.get_method(), req.get_selector(),
+             response.code, hdrs.get("Content-Length", "-")))
+
 class DebugEkoClient(EkoClient):
     server_url = "http://localhost:8080/"
     min_pass_time = datetime.timedelta(seconds=1)
@@ -131,7 +135,7 @@ def main():
         parser.print_usage(sys.stderr)
         sys.stderr.write("can only have one local target\n")
         sys.exit(1)
-    
+
     log_level = logging.INFO
     if opts.verbose:
         log_level = logging.DEBUG
